@@ -1,0 +1,350 @@
+swagger: "2.0"
+info:
+  title: Bank Argent API documentation
+  description: Contains all available API endpoints in this codebase
+  version: "1.0.0"
+  termsOfService: "http://swagger.io/terms/"
+host: localhost:3001
+basePath: /api/v1
+schemes:
+  - http
+
+paths:
+  /user/login:
+    post:
+      tags:
+        - User Module
+      summary: Login
+      description: API for Login
+      parameters:
+        - in: body
+          name: body
+          description: Login Payload
+          required: true
+          schema:
+            $ref: "#/definitions/Login"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Login Successfully
+          schema:
+            $ref: "#/definitions/LoginResponse"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+
+  /user/signup:
+    post:
+      tags:
+        - User Module
+      summary: Signup
+      description: API for Signup
+      parameters:
+        - in: body
+          name: body
+          description: Signup Payload
+          required: true
+          schema:
+            $ref: "#/definitions/User"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Signup Successfully
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+
+  /user/profile:
+    post:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: User Profile API
+      description: API for fetching a user profile
+      responses:
+        "200":
+          description: User profile retrieved successfully
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+    put:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: User Profile API
+      description: API for updating a user profile
+      parameters:
+        - in: body
+          name: body
+          description: Update user profile attributes
+          required: true
+          schema:
+            $ref: "#/definitions/UserProfile"
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: User profile updated successfully
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+
+  /user/account:
+    post:
+      tags:
+        - User Module
+      summary: Create Account
+      description: API to create a new user account
+      parameters:
+        - in: body
+          name: body
+          description: Account creation payload
+          required: true
+          schema:
+            $ref: "#/definitions/Account"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Account created successfully
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+    get:
+      tags:
+        - User Module
+      summary: Get Account Balance
+      description: API to retrieve the account balance for a user
+      parameters:
+        - in: query
+          name: userId
+          type: string
+          description: User ID associated with the account
+          required: true
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Balance retrieved successfully
+          schema:
+            type: object
+            properties:
+              balance:
+                type: number
+                description: Account balance
+        "404":
+          description: Account not found
+        "500":
+          description: Internal Server Error
+
+  /user/account/transactions:
+    post:
+      tags:
+        - Transactions Module
+      summary: Add a Transaction
+      description: API to add a new transaction
+      parameters:
+        - in: body
+          name: body
+          description: Transaction payload
+          required: true
+          schema:
+            $ref: "#/definitions/Transaction"
+      produces:
+        - application/json
+      responses:
+        "201":
+          description: Transaction added successfully
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+    get:
+      tags:
+        - Transactions Module
+      summary: Get Transactions
+      description: API to retrieve transactions for an account
+      parameters:
+        - in: query
+          name: accountId
+          type: string
+          description: Account ID associated with the transactions
+          required: true
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Transactions retrieved successfully
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Transaction"
+        "404":
+          description: Transactions not found
+        "500":
+          description: Internal Server Error
+    put:
+      tags:
+        - Transactions Module
+      summary: Edit Transaction Note
+      description: API to edit the note of a transaction
+      parameters:
+        - in: body
+          name: body
+          description: Transaction note edit payload
+          required: true
+          schema:
+            properties:
+              idTransaction:
+                type: string
+                description: ID of the transaction to edit
+              note:
+                type: string
+                description: New note content
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Transaction note edited successfully
+        "400":
+          description: Invalid Fields
+        "500":
+          description: Internal Server Error
+
+  /user/account/transactions/month:
+    get:
+      tags:
+        - Transactions Module
+      summary: Get Transactions for a Specific Month
+      description: Retrieve transactions for a specified month. If no month is specified, returns transactions for the current month.
+      parameters:
+        - in: query
+          name: month
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 12
+          description: Month for which transactions need to be fetched. Format is a number between 1 (January) and 12 (December).
+          required: false
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: Transactions retrieved successfully for the specified month
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Transaction"
+        "400":
+          description: Invalid month provided
+        "500":
+          description: Internal Server Error
+
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+
+definitions:
+  User:
+    properties:
+      email:
+        type: string
+        description: user email
+      password:
+        type: string
+        description: user password
+      firstName:
+        type: string
+        description: user first name
+      lastName:
+        type: string
+        description: user last name
+      userName:
+        type: string
+        description: user public name
+  Login:
+    properties:
+      email:
+        type: string
+        description: user email
+      password:
+        type: string
+        description: user password
+  ApiResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+      message:
+        type: string
+      body:
+        type: object
+        properties:
+          id:
+            type: string
+          email:
+            type: string
+  LoginResponse:
+    type: object
+    properties:
+      token:
+        type: string
+  UserProfile:
+    type: object
+    properties:
+      userName:
+        type: string
+  Account:
+    type: object
+    properties:
+      userId:
+        type: string
+        description: ID of the user associated with the account
+      idAccount:
+        type: string
+        description: Account ID
+      balance:
+        type: number
+        description: Current account balance
+  Transaction:
+    type: object
+    properties:
+      idTransaction:
+        type: string
+        description: Transaction ID
+      date:
+        type: string
+        format: date
+        description: Date of the transaction (JJ/MM/AAAA)
+      accountId:
+        type: string
+        description: ID of the associated account
+      amount:
+        type: number
+        description: Amount of the transaction
+      type:
+        type: string
+        enum:
+          - debit
+          - credit
+        description: Type of the transaction (debit or credit)
+      note:
+        type: string
+        description: Note associated with the transaction
